@@ -12,42 +12,28 @@
 % string_params.c: %damping coefficient
 % string_params.dx: %horizontal spacing between masses
 function dVdt = string_rate_func01(t,V,string_params)
-
-    n = string_params.n; %number of masses
-    M = string_params.M; %total mass attached to the string
-    Uf_func = string_params.Uf_func; %function describing motion of end point
-    dUfdt_func = string_params.dUfdt_func; %time derivative of Uf
-    Tf = string_params.Tf; %tension in string
-    L = string_params.L; %length of string
-    c = string_params.c; %damping coefficient
-    dx = string_params.dx; %horizontal spacing between masses
     
     %unpack state variable
-    U = V(1:n);
-    dUdt = V((n+1):(2*n));
+    U = V(1:string_params.n);
+    dUdt = V((string_params.n+1):(2*string_params.n));
+
     Uf = Uf_func(t);
     dUfdt = dUfdt_func(t);
     
     %compute acceleration
-    tspan = [1,10];
+    d2Udt2 = zeros(string_params.n,1);  
     
-    for i = length(tspan)
-       
-        d2Udt2 = zeros(n,1);  
-
-        m = M / n;    
+    % left boundary
+    d2Udt2(1) = (string_params.Tf/string_params.dx * (-2*U(1) + U(2)) + string_params.c/string_params.dx  * (-2*dUdt(1) + dUdt(2))) / string_params.m;
     
-        % left boundary
-        d2Udt2(1) = (Tf/dx * (-2*U(1) + U(2)) + c/dx  * (-2*dUdt(1) + dUdt(2))) / m;
-    
-        % interior points
-        for i = 2:n-1
-            d2Udt2(i) = (Tf/dx * (U(i-1) - 2*U(i) + U(i+1)) + c/dx * (dUdt(i-1) - 2*dUdt(i) + dUdt(i+1))) / m;
-        end
-
-        % right boundary 
-        d2Udt2(n) = (Tf/dx * (U(n-1) - 2*U(n) + Uf) + c/dx * (dUdt(n-1) - 2*dUdt(n) + dUfdt)) / m;
+    % interior points
+    for i = 2:string_params.n-1
+        d2Udt2(i) = (string_params.Tf/string_params.dx * (U(i-1) - 2*U(i) + U(i+1)) + string_params.c/string_params.dx * (dUdt(i-1) - 2*dUdt(i) + dUdt(i+1))) / string_params.m;
     end
+
+    % right boundary 
+    d2Udt2(n) = (string_params.Tf/string_params.dx * (U(string_params.n-1) - 2*U(string_params.n) + Uf) + string_params.c/string_params.dx * (dUdt(string_params.n-1) - 2*dUdt(string_params.n) + dUfdt)) / string_params.m;
+
     
     %assemble state derivative
     dVdt = [dUdt;d2Udt2];

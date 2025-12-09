@@ -1,7 +1,9 @@
+
+
 function main()
 
     % Create string_params
-    num_masses = 4;
+    num_masses = 20;
     total_mass = 10;                    % kg
     tension_force = 100;                % N
     string_length = 5;                  % m
@@ -23,8 +25,9 @@ function main()
         35/384, 0, 500/1113, 125/192, -2187/6784,11/84,0];
 
 
-    U0 = 0;
-    dUdt0 = 0.2;
+    U0 = zeros(num_masses, 1);
+    dUdt0 = zeros(num_masses, 1);
+    V0 = [U0; dUdt0];
     tspan = [0 10];
     string_simulation_template01(string_params, @string_rate_func01, U0, dUdt0, tspan)
 
@@ -58,21 +61,30 @@ function main()
     tlist = tspan;                  
     Vlist = zeros(length(V0), Nt);  
     Vlist(:,1) = XA;
+    xlist = 0:string_params.dx:string_params.L;
     
     % Time-stepping
     for k = 1:Nt-1
         t = tspan(k);                        
-        [XB, ~] = explicit_RK_step(my_rate, t, XA, h, DormandPrince);
+        [XB, ~] = explicit_RK_step(my_rate, t, XA, h, DormandPrince);        
         XA = XB;                              
         Vlist(:, k+1) = XA;                   
     end
 
-    [XB, num_evals] = explicit_RK_step(my_rate, t, XA, h, DormandPrince);    
-    animate_string(tlist, Vlist, string_params);
+    [XB, num_evals] = explicit_RK_step(my_rate, t, XA, h, DormandPrince); 
 
+    animate_title = "Vibrating String Animation";
+    animate_string(tlist, Vlist, string_params, animate_title);
     subplot(1,2,1)
     plot(xlist(2:end-1), Ur)
 
+    
+% ------------------ CONTINUOUS VS. DISCRETE ANALYSIS ------------------
 
+    % continuous_vs_discrete_analysis(string_params, 3);     
+
+% ------------------------- TRAVELLING WAVES ---------------------------
+    
+    traveling_wave_setup(string_params, @explicit_RK_step, DormandPrince);
 
 end

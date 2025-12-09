@@ -1,4 +1,4 @@
-function animate_string(tlist, Vlist, string_params)
+function animate_string(tlist, Vlist, string_params, animate_title)
     
     % Extract data
     Ulist = Vlist(1:string_params.n, :);     
@@ -17,12 +17,12 @@ function animate_string(tlist, Vlist, string_params)
     grid on;
     xlabel('x');
     ylabel('displacement');
-    title('Vibrating String Animation');
+    title(animate_title);
     ylim(1.5 * [-maxU, maxU]);
     
     % Animation loop
     Nt = length(tlist);
-    skip = max(1, floor(Nt/500)); 
+    skip = max(1, floor(Nt/800)); 
     
     for k = 1:skip:Nt
         % Reconstruct string shape
@@ -31,6 +31,7 @@ function animate_string(tlist, Vlist, string_params)
         % Update plot
         set(h, 'YData', U_full);
         drawnow;
+        pause(0.01);
     end
 
 end

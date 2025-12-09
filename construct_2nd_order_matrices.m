@@ -13,7 +13,6 @@
 %M_mat: the n x n mass (inertia) matrix
 %K_mat: the n x n stiffness matrix
 function [M_mat,K_mat] = construct_2nd_order_matrices(string_params)
-
     
     % Mass matrix
     M_mat = (string_params.M/string_params.n) * eye(string_params.n);

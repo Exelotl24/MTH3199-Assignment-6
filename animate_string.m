@@ -1,47 +1,47 @@
-function animate_string(tlist, Vlist, string_params, animate_title)
+function animate_string(tlist, Vlist, string_params, animate_title, c, w)
     
-    % Recalculate wave speed for initial velocity calculation
-    rho = string_params.M / string_params.L;
-    c = sqrt(string_params.Tf / rho);
-    
-    n = string_params.n;
-    L = string_params.L;
-    dx = string_params.dx;
-    
-    % Define x-coords
-    x_masses = dx : dx : L - dx;
-   
-    % Initial conditions
-
-    % Pulse params
-    A = 1;      % Amplitude 
-    xc = L/4;   % Center
-    sigma = L/15; % Width 
-
-    % Pulse time width for tracking line
-    w = sigma / c;
-
-    % Initial displacement 
-    U0 = A * exp(-(x_masses - xc).^2 / (2 * sigma^2))';
-
-    % Initial velocity
-    dUdt0_prime = zeros(n, 1);
-
-    % Central difference for interior points
-    for i = 2:n-1
-        dUdt0_prime(i) = (U0(i+1) - U0(i-1)) / (2 * dx);
-    end
-
-    % First mass diff
-    dUdt0_prime(1) = (U0(2) - U0(1)) / dx;
-
-    % Last mass diff
-    dUdt0_prime(n) = (U0(n) - U0(n-1)) / dx;
-
-    % Final initial velocity 
-    dUdt0 = -c * dUdt0_prime;
-
-    V0 = [U0; dUdt0];
+    % % Recalculate wave speed for initial velocity calculation
+    % rho = string_params.M / string_params.L;
+    % c = sqrt(string_params.Tf / rho);
+    % 
+    % n = string_params.n;
+    % L = string_params.L;
+    % dx = string_params.dx;
+    % 
+    % % Define x-coords
+    % x_masses = dx : dx : L - dx;
+    % 
+    % % Initial conditions
+    % 
+    % % Pulse params
+    % A = 1;      % Amplitude 
+    % xc = L/4;   % Center
+    % sigma = L/15; % Width 
+    % 
+    % % Width for tracking line
+    % w = .1;
+    % 
+    % % Initial displacement 
+    % U0 = A * exp(-(x_masses - xc).^2 / (2 * sigma^2))';
+    % 
+    % % Initial velocity
+    % dUdt0_prime = zeros(n, 1);
+    % 
+    % % Central difference for interior points
+    % for i = 2:n-1
+    %     dUdt0_prime(i) = (U0(i+1) - U0(i-1)) / (2 * dx);
+    % end
+    % 
+    % % First mass diff
+    % dUdt0_prime(1) = (U0(2) - U0(1)) / dx;
+    % 
+    % % Last mass diff
+    % dUdt0_prime(n) = (U0(n) - U0(n-1)) / dx;
+    % 
+    % % Final initial velocity 
+    % dUdt0 = -c * dUdt0_prime;
+    % 
+    % V0 = [U0; dUdt0];
 
 
     % Extract data
@@ -54,15 +54,8 @@ function animate_string(tlist, Vlist, string_params, animate_title)
     if maxU == 0
         maxU = 1;   
     end
-    
-    % Create plot
-    % figure();
-    % h = plot(xlist, zeros(size(xlist)), 'LineWidth', 2);
-    % grid on;
-    % xlabel('x');
-    % ylabel('displacement');
-    % title(animate_title);
-    % ylim(1.5 * [-maxU, maxU]);
+    ylim_vals = 1.5 * [-maxU, maxU];
+   
    
     figure();
     
@@ -73,22 +66,23 @@ function animate_string(tlist, Vlist, string_params, animate_title)
     h_track = plot(0, 0, 'r--', 'LineWidth', 1.5, 'DisplayName', 'Tracking Line'); 
     grid on;
 
-    xlabel('$x$');
+    xlabel('x');
     ylabel('displacement');
     title(animate_title); 
-    ylim(1.5 * [-maxU, maxU]);
+    ylim([-1.5, 1.5]);
+    xlim([-0, 5]);
     legend('show');
 
     % Animation loop
     Nt = length(tlist);
     skip = max(1, floor(Nt/800)); 
     
-    for k = 1:skip:Nt
+    for k = 1:Nt
 
         t = tlist(k);
 
         % Reconstruct string shape
-        U_full = [0 ; Ulist(:,k) ; string_params.Uf_func(tlist(k))];
+        ylist = [0 ; Ulist(:,k) ; string_params.Uf_func(tlist(k))];
 
         % Calculate tracking line (description of what I'm doing is shown
         % in commented code below
@@ -107,13 +101,13 @@ function animate_string(tlist, Vlist, string_params, animate_title)
             x_track = 2 * string_params.L - x_track;
         end
 
-        h = 0.005;
 
         % Update plot
-        set(h_string, 'YData', U_full);
+        set(h_track, 'XData', [x_track, x_track], 'YData', ylim);
+        set(h_string, 'XData', xlist, 'YData', ylist);
 
         drawnow;
-        pause(0.005);
+        pause(0.5);
     end
 
 end

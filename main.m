@@ -74,7 +74,7 @@ function main()
     [XB, num_evals] = explicit_RK_step(my_rate, t, XA, h, DormandPrince); 
 
     animate_title = "Vibrating String Animation";
-    animate_string(tlist, Vlist, string_params, animate_title);
+    animate_string(tlist, Vlist, string_params, animate_title, 0, 0);
     subplot(1,2,1)
     plot(xlist(2:end-1), Ur)
 

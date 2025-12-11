@@ -14,7 +14,7 @@ function continuous_vs_discrete_analysis(initial_params, r_mode)
     
     omega_r_cont = r * pi * cw / L; 
     
-    figure;
+    figure();
     set(gcf, 'Position', [100, 100, 1200, 900]); 
     
     

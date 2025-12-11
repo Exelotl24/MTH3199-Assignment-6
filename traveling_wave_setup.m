@@ -13,7 +13,7 @@ function traveling_wave_setup(initial_params, explicit_RK_step_func, DormandPrin
 
     % Recalculate wave speed for initial velocity calculation
     rho = string_params.M / string_params.L;
-    cw = sqrt(string_params.Tf / rho);
+    c = sqrt(string_params.Tf / rho);
     
     n = string_params.n;
     L = string_params.L;
@@ -22,38 +22,41 @@ function traveling_wave_setup(initial_params, explicit_RK_step_func, DormandPrin
     % Define x-coords
     x_masses = dx : dx : L - dx;
     
-    % Initial conditions
-    
-    % Gaussian pulse parameters
-    A = 1;      % Amplitude 
-    xc = L/4;   % Center
-    sigma = L/15; % Width 
-    
-    % Initial displacement 
-    U0 = A * exp(-(x_masses - xc).^2 / (2 * sigma^2))';
-    
-    % Initial velocity
-    dUdt0_prime = zeros(n, 1);
-    
-    % Central difference for interior points
-    for i = 2:n-1
-        dUdt0_prime(i) = (U0(i+1) - U0(i-1)) / (2 * dx);
-    end
-
-    % First mass diff
-    dUdt0_prime(1) = (U0(2) - U0(1)) / dx;
-
-    % Last mass diff
-    dUdt0_prime(n) = (U0(n) - U0(n-1)) / dx;
-    
-    % Final initial velocity 
-    dUdt0 = -cw * dUdt0_prime;
-    
-    V0 = [U0; dUdt0];
+    % % Initial conditions
+    % 
+    % % Pulse params
+    % A = 1;      % Amplitude 
+    % xc = L/4;   % Center
+    % sigma = L/15; % Width 
+    % 
+    % % Pulse time width for tracking line
+    % w = sigma / c;
+    % 
+    % % Initial displacement 
+    % U0 = A * exp(-(x_masses - xc).^2 / (2 * sigma^2))';
+    % 
+    % % Initial velocity
+    % dUdt0_prime = zeros(n, 1);
+    % 
+    % % Central difference for interior points
+    % for i = 2:n-1
+    %     dUdt0_prime(i) = (U0(i+1) - U0(i-1)) / (2 * dx);
+    % end
+    % 
+    % % First mass diff
+    % dUdt0_prime(1) = (U0(2) - U0(1)) / dx;
+    % 
+    % % Last mass diff
+    % dUdt0_prime(n) = (U0(n) - U0(n-1)) / dx;
+    % 
+    % % Final initial velocity 
+    % dUdt0 = -c * dUdt0_prime;
+    % 
+    % V0 = [U0; dUdt0];
     
     %  Run simulation
     t0 = 0;
-    t_end = 2 * L / cw * 1.5; 
+    t_end = 2 * L / c * 1.5; 
     h = 0.005;               
     tspan = t0:h:t_end;
     Nt = length(tspan);
@@ -82,12 +85,12 @@ function traveling_wave_setup(initial_params, explicit_RK_step_func, DormandPrin
         Energy_list(k+1) = 0.5 * (dUdt' * M_mat * dUdt + U' * K_mat * U);
     end
     
-    % Animate the string motion
+    % Animate
     animate_title = 'Traveling Wave Animation';
-    animate_string(tlist, Vlist, string_params, animate_title);
+    animate_string(tlist, Vlist, string_params, animate_title, c, w);
     
     % Plot 
-    figure;
+    figure();
     plot(tlist, Energy_list);
     xlabel('Time (s)');
     ylabel('Total Mechanical Energy (J)');

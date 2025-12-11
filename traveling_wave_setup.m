@@ -14,47 +14,49 @@ function traveling_wave_setup(initial_params, explicit_RK_step_func, DormandPrin
     % Recalculate wave speed for initial velocity calculation
     rho = string_params.M / string_params.L;
     c = sqrt(string_params.Tf / rho);
-    
+
     n = string_params.n;
     L = string_params.L;
     dx = string_params.dx;
-    
+
     % Define x-coords
     x_masses = dx : dx : L - dx;
-    
-    % % Initial conditions
-    % 
-    % % Pulse params
-    % A = 1;      % Amplitude 
-    % xc = L/4;   % Center
-    % sigma = L/15; % Width 
-    % 
-    % % Pulse time width for tracking line
-    % w = sigma / c;
-    % 
-    % % Initial displacement 
-    % U0 = A * exp(-(x_masses - xc).^2 / (2 * sigma^2))';
-    % 
-    % % Initial velocity
-    % dUdt0_prime = zeros(n, 1);
-    % 
-    % % Central difference for interior points
-    % for i = 2:n-1
-    %     dUdt0_prime(i) = (U0(i+1) - U0(i-1)) / (2 * dx);
-    % end
-    % 
-    % % First mass diff
-    % dUdt0_prime(1) = (U0(2) - U0(1)) / dx;
-    % 
-    % % Last mass diff
-    % dUdt0_prime(n) = (U0(n) - U0(n-1)) / dx;
-    % 
-    % % Final initial velocity 
-    % dUdt0 = -c * dUdt0_prime;
-    % 
-    % V0 = [U0; dUdt0];
+
+    % Initial conditions
+
+    % Pulse params
+    A = 1;      % Amplitude 
+    xc = L/4;   % Center
+    sigma = L/15; % Width 
+
+    % Pulse time width for tracking line
+    w = sigma / c;
+
+    % Initial displacement 
+    U0 = A * exp(-(x_masses - xc).^2 / (2 * sigma^2))';
+
+    % Initial velocity
+    dUdt0_prime = zeros(n, 1);
+
+    % Central difference for interior points
+    for i = 2:n-1
+        dUdt0_prime(i) = (U0(i+1) - U0(i-1)) / (2 * dx);
+    end
+
+    % First mass diff
+    dUdt0_prime(1) = (U0(2) - U0(1)) / dx;
+
+    % Last mass diff
+    dUdt0_prime(n) = (U0(n) - U0(n-1)) / dx;
+
+    % Final initial velocity 
+    dUdt0 = -c * dUdt0_prime;
+
+    V0 = [U0; dUdt0];
     
     %  Run simulation
+    L = string_params.L;
+
     t0 = 0;
     t_end = 2 * L / c * 1.5; 
     h = 0.005;               
@@ -87,7 +89,7 @@ function traveling_wave_setup(initial_params, explicit_RK_step_func, DormandPrin
     
     % Animate
     animate_title = 'Traveling Wave Animation';
-    animate_string(tlist, Vlist, string_params, animate_title, c, w);
+    animate_string(tlist, Vlist, string_params, animate_title);
     
     % Plot 
     figure();

@@ -1,5 +1,49 @@
-function animate_string(tlist, Vlist, string_params, animate_title, c, w)
+function animate_string(tlist, Vlist, string_params, animate_title)
     
+    % Recalculate wave speed for initial velocity calculation
+    rho = string_params.M / string_params.L;
+    c = sqrt(string_params.Tf / rho);
+    
+    n = string_params.n;
+    L = string_params.L;
+    dx = string_params.dx;
+    
+    % Define x-coords
+    x_masses = dx : dx : L - dx;
+   
+    % Initial conditions
+
+    % Pulse params
+    A = 1;      % Amplitude 
+    xc = L/4;   % Center
+    sigma = L/15; % Width 
+
+    % Pulse time width for tracking line
+    w = sigma / c;
+
+    % Initial displacement 
+    U0 = A * exp(-(x_masses - xc).^2 / (2 * sigma^2))';
+
+    % Initial velocity
+    dUdt0_prime = zeros(n, 1);
+
+    % Central difference for interior points
+    for i = 2:n-1
+        dUdt0_prime(i) = (U0(i+1) - U0(i-1)) / (2 * dx);
+    end
+
+    % First mass diff
+    dUdt0_prime(1) = (U0(2) - U0(1)) / dx;
+
+    % Last mass diff
+    dUdt0_prime(n) = (U0(n) - U0(n-1)) / dx;
+
+    % Final initial velocity 
+    dUdt0 = -c * dUdt0_prime;
+
+    V0 = [U0; dUdt0];
+
+
     % Extract data
     Ulist = Vlist(1:string_params.n, :);     
     
@@ -40,6 +84,9 @@ function animate_string(tlist, Vlist, string_params, animate_title, c, w)
     skip = max(1, floor(Nt/800)); 
     
     for k = 1:skip:Nt
+
+        t = tlist(k);
+
         % Reconstruct string shape
         U_full = [0 ; Ulist(:,k) ; string_params.Uf_func(tlist(k))];
 
@@ -59,9 +106,12 @@ function animate_string(tlist, Vlist, string_params, animate_title, c, w)
         if x_track > string_params.L
             x_track = 2 * string_params.L - x_track;
         end
-        
+
+        h = 0.005;
+
         % Update plot
-        set(h, 'YData', U_full);
+        set(h_string, 'YData', U_full);
+
         drawnow;
         pause(0.005);
     end

@@ -16,7 +16,7 @@ function dVdt = string_rate_func01(t,V,string_params)
     % Unpack essential parameters
     n = string_params.n;
     
-    % Unpack function handles (CRITICAL FIX)
+    % Unpack function handles 
     Uf_func = string_params.Uf_func;
     dUfdt_func = string_params.dUfdt_func;
 

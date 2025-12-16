@@ -7,9 +7,9 @@ function string_params = create_string_params(num_masses, total_mass, tension_fo
    % Uf_func = @(t_in) amplitude_Uf*cos(omega_Uf*t_in);
    % dUfdt_func = @(t_in) -omega_Uf*amplitude_Uf*sin(omega_Uf*t_in);
 
-    %Triangle wave
-    Uf_func = @(t_in) triangle_pulse(t_in,w,h);
-    dUfdt_func = @(t_in) triangle_pulse_derivative(t_in,w,h);
+    % %Triangle wave
+    % Uf_func = @(t_in) triangle_pulse(t_in,w,h);
+    % dUfdt_func = @(t_in) triangle_pulse_derivative(t_in,w,h);
 
 
     %generate the struct
